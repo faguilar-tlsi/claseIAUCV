@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IA para Dirección de Operaciones · Material de clase</title>
+<meta name="description" content="Material de las sesiones de Inteligencia Artificial del Máster en Dirección de Operaciones: ejercicios, chuleta de prompts y herramientas.">
+<style>
+:root{
+  --bg:#ffffff; --bg2:#f1f2f4; --ink:#1f1f1f; --ink2:#2e3440; --muted:#5f6b76;
+  --accent:#3d6a8a; --accent-ink:#ffffff; --hl:#c9a227; --line:#dde2e7; --dark:#2e3440;
+  --radius:12px; --max:1040px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#16191e; --bg2:#20252c; --ink:#e8eaed; --ink2:#f1f2f4; --muted:#a3adb7;
+    --accent:#6f9cbd; --accent-ink:#0f1215; --line:#2f3640; --dark:#0f1215;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#16191e; --bg2:#20252c; --ink:#e8eaed; --ink2:#f1f2f4; --muted:#a3adb7;
+  --accent:#6f9cbd; --accent-ink:#0f1215; --line:#2f3640; --dark:#0f1215;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+a{color:var(--accent)}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 16px}
+header.hero{background:var(--dark);color:#fff;padding:56px 0 40px}
+.hero h1{font-size:clamp(28px,5vw,44px);line-height:1.15;margin:0 0 12px}
+.hero p{color:#c9d1d8;margin:0;max-width:720px;font-size:18px}
+.tag{display:inline-block;color:var(--hl);font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:13px;margin-bottom:12px}
+nav.toc{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+nav.toc .wrap{display:flex;gap:6px;overflow-x:auto;padding-top:10px;padding-bottom:10px}
+nav.toc a{white-space:nowrap;text-decoration:none;color:var(--ink2);padding:6px 12px;border-radius:999px;background:var(--bg2);font-size:14px;font-weight:600}
+nav.toc a:hover{background:var(--accent);color:var(--accent-ink)}
+section{padding:44px 0 8px}
+h2{font-size:28px;margin:0 0 6px;color:var(--ink2)}
+h3{font-size:19px;margin:0 0 6px;color:var(--ink2)}
+.lead{color:var(--muted);margin:0 0 22px}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.card{background:var(--bg2);border-radius:var(--radius);padding:20px}
+.card p{margin:0}
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:var(--accent-ink);text-decoration:none;font-weight:700;padding:10px 16px;border-radius:10px;margin-top:12px}
+.btn.ghost{background:transparent;color:var(--accent);border:2px solid var(--accent)}
+.steps{counter-reset:s;display:grid;gap:14px}
+.step{background:var(--bg2);border-radius:var(--radius);padding:18px 18px 18px 64px;position:relative}
+.step::before{counter-increment:s;content:counter(s);position:absolute;left:18px;top:18px;width:32px;height:32px;border-radius:50%;background:var(--hl);color:#1f1f1f;font-weight:800;display:grid;place-items:center}
+.prompt{position:relative;margin-top:10px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px 84px 12px 14px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;white-space:pre-wrap;word-break:break-word}
+.copy{position:absolute;top:8px;right:8px;border:0;background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:12px;padding:6px 10px;border-radius:8px;cursor:pointer}
+.formula{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0 20px}
+.formula span{background:var(--accent);color:var(--accent-ink);padding:10px 14px;border-radius:10px;font-weight:700}
+.formula span em{display:block;font-weight:400;font-style:normal;font-size:13px;opacity:.9}
+details{background:var(--bg2);border-radius:var(--radius);padding:14px 18px;margin-bottom:10px}
+summary{cursor:pointer;font-weight:700;color:var(--ink2)}
+.rules{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.rule{display:flex;gap:12px;align-items:flex-start;background:var(--bg2);border-radius:var(--radius);padding:14px}
+.rule b{display:block;color:var(--ink2)}
+.ok,.no{flex:0 0 28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:800;color:#fff}
+.ok{background:#5e7e5a}.no{background:#9b4d4d}
+.tools h3{margin-top:26px}
+.tool{display:block;text-decoration:none;color:inherit;background:var(--bg2);border-radius:var(--radius);padding:16px;border:2px solid transparent}
+.tool:hover{border-color:var(--accent)}
+.tool b{color:var(--ink2);font-size:17px}
+.tool small{display:block;color:var(--muted);margin-top:4px;font-size:14px}
+.pill{display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--accent);margin-left:6px}
+footer{margin-top:48px;padding:28px 0 40px;border-top:1px solid var(--line);color:var(--muted);font-size:14px}
+.note{border-left:0;background:var(--bg2);border-radius:var(--radius);padding:14px 18px;color:var(--ink)}
+@media print{nav.toc,.copy,.btn{display:none}header.hero{background:#fff;color:#000}.hero p{color:#333}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="tag">Máster en Dirección de Operaciones · Sistemas Integrados</div>
+    <h1>Inteligencia Artificial para dirección de operaciones</h1>
+    <p>Material de las dos sesiones: la teoría para entender qué hay detrás, y la práctica para usarla desde mañana.</p>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Secciones">
+  <div class="wrap">
+    <a href="#material">Material</a>
+    <a href="#ejercicio">Ejercicio</a>
+    <a href="#chuleta">Chuleta de prompts</a>
+    <a href="#reglas">Reglas de uso</a>
+    <a href="#herramientas">Herramientas</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<section id="material">
+  <h2>Material</h2>
+  <p class="lead">Descarga lo que necesitas para la sesión práctica.</p>
+  <div class="grid g3">
+    <div class="card">
+      <h3>Datos del ejercicio</h3>
+      <p>Excel con pedidos, incidencias y proveedores de una empresa ficticia (enero–septiembre 2026).</p>
+      <a class="btn" href="datos_operaciones.xlsx" download>Descargar Excel</a>
+    </div>
+    <div class="card">
+      <h3>Sesión 1 · Teoría</h3>
+      <p>Qué es la IA, historia, cómo funciona un LLM, modelos de pago, agentes y riesgos.</p>
+      <a class="btn ghost" href="sesion1_teoria.pdf">Ver presentación</a>
+    </div>
+    <div class="card">
+      <h3>Sesión 2 · Práctica</h3>
+      <p>Del chat al agente: ejercicios, herramientas y demos.</p>
+      <a class="btn ghost" href="sesion2_practica.pdf">Ver presentación</a>
+    </div>
+  </div>
+</section>
+
+<section id="ejercicio">
+  <h2>Ejercicio: de los datos a la decisión</h2>
+  <p class="lead">Hazlo en una sola conversación, con el asistente que prefieras (ChatGPT, Claude, Gemini, Copilot…). Sirve la versión gratuita.</p>
+  <div class="note"><b>Contexto:</b> eres el nuevo responsable de compras de una empresa industrial. Dirección te pide en una semana un diagnóstico de proveedores. Tienes el Excel y 20 minutos.</div>
+  <div class="steps" style="margin-top:16px">
+    <div class="step">
+      <h3>Analiza</h3>
+      <p>Sube el Excel y pide el diagnóstico.</p>
+      <div class="prompt">Eres analista de operaciones. Te adjunto un Excel con tres hojas: Pedidos, Incidencias y Proveedores. ¿Qué proveedores nos están dando más problemas y por qué? Calcula para cada proveedor el % de pedidos entregados con retraso y el número y coste de incidencias por tipo. Muéstralo en una tabla ordenada de peor a mejor y haz un gráfico.<button class="copy">Copiar</button></div>
+    </div>
+    <div class="step">
+      <h3>Verifica</h3>
+      <p>Comprueba al menos un número tú mismo (filtro o tabla dinámica en Excel). ¿Cuadra? Después pregunta:</p>
+      <div class="prompt">Antes de seguir: revisa la calidad de los datos. ¿Hay pedidos duplicados, fechas imposibles o proveedores escritos de formas distintas? Si los hay, corrígelo y dime cómo cambian las conclusiones.<button class="copy">Copiar</button></div>
+    </div>
+    <div class="step">
+      <h3>Critica</h3>
+      <p>Usa la IA como sparring, no como oráculo.</p>
+      <div class="prompt">Actúa como un director de operaciones escéptico. Critica el análisis anterior: ¿qué conclusiones son débiles, qué falta y qué preguntas me haría el comité de dirección?<button class="copy">Copiar</button></div>
+    </div>
+    <div class="step">
+      <h3>Comunica</h3>
+      <p>Convierte el análisis en algo que se pueda enviar.</p>
+      <div class="prompt">Redacta un email de máximo 5 líneas al director de operaciones con el diagnóstico, el impacto económico y una propuesta de acción concreta para cada uno de los dos proveedores más problemáticos. Tono directo y profesional.<button class="copy">Copiar</button></div>
+    </div>
+  </div>
+</section>
+
+<section id="chuleta">
+  <h2>Chuleta de prompts</h2>
+  <p class="lead">Un buen prompt es un buen encargo: lo que le dirías a un compañero nuevo y muy listo que no sabe nada de tu empresa.</p>
+  <div class="formula">
+    <span>Rol<em>Quién es</em></span>
+    <span>Contexto<em>Qué pasa y para qué</em></span>
+    <span>Tarea<em>Qué tiene que hacer</em></span>
+    <span>Formato<em>Cómo lo quieres</em></span>
+    <span>Límites<em>Qué evitar</em></span>
+  </div>
+
+  <details open>
+    <summary>Email difícil a un proveedor</summary>
+    <div class="prompt">Eres responsable de compras. Nuestro proveedor [nombre] ha entregado tarde [n] de los últimos [m] pedidos y nos ha provocado [consecuencia]. Redacta un email firme pero que mantenga la relación, pidiendo un plan de mejora con fechas. Máximo 150 palabras. Dame dos versiones: una más dura y otra más conciliadora.<button class="copy">Copiar</button></div>
+  </details>
+  <details>
+    <summary>Resumen ejecutivo de un informe largo</summary>
+    <div class="prompt">Resume el documento adjunto para un comité de dirección que tiene 2 minutos. Formato: 3 conclusiones clave, 3 riesgos y 1 decisión que hay que tomar. Si algo no está en el documento, no lo inventes: indícalo.<button class="copy">Copiar</button></div>
+  </details>
+  <details>
+    <summary>Análisis de causa raíz</summary>
+    <div class="prompt">Tenemos este problema: [describe el problema, con datos]. Haz un análisis de causa raíz con la técnica de los 5 porqués y después un diagrama de Ishikawa (6M) en forma de tabla. Señala qué hipótesis habría que validar con datos antes de actuar.<button class="copy">Copiar</button></div>
+  </details>
+  <details>
+    <summary>Procedimiento operativo (SOP) o checklist</summary>
+    <div class="prompt">Redacta un procedimiento operativo para [proceso, p. ej. recepción de mercancía]. Incluye: objetivo, alcance, responsables, pasos numerados, puntos de control y qué hacer ante las 3 incidencias más habituales. Lenguaje sencillo, para personal operativo.<button class="copy">Copiar</button></div>
+  </details>
+  <details>
+    <summary>Preparar una reunión</summary>
+    <div class="prompt">Mañana presento [tema] ante [quién]. Mi objetivo es [conseguir X]. Prepárame: orden del día de 30 minutos, los 3 mensajes clave, las 5 preguntas más difíciles que me pueden hacer y cómo responderlas.<button class="copy">Copiar</button></div>
+  </details>
+  <details>
+    <summary>Abogado del diablo para una decisión</summary>
+    <div class="prompt">Estoy a punto de decidir [decisión]. Mis argumentos a favor son: [lista]. Actúa como abogado del diablo: dame los mejores argumentos en contra, los riesgos que no estoy viendo y qué datos necesitaría para estar seguro.<button class="copy">Copiar</button></div>
+  </details>
+  <details>
+    <summary>Fórmula de Excel que no sabes hacer</summary>
+    <div class="prompt">En Excel tengo en la columna B la fecha prometida y en la C la fecha real de entrega. Necesito una fórmula que calcule los días de retraso (0 si llegó a tiempo) y otra que me dé el % de pedidos con retraso por proveedor (columna A). Explícame cada fórmula en una frase.<button class="copy">Copiar</button></div>
+  </details>
+  <details>
+    <summary>Comparar opciones</summary>
+    <div class="prompt">Compara estas opciones para [objetivo]: [A], [B], [C]. Hazlo en una tabla con estos criterios: coste, plazo de implantación, riesgo, impacto en el equipo y escalabilidad. Al final, recomienda una y explica en 3 líneas por qué.<button class="copy">Copiar</button></div>
+  </details>
+  <details>
+    <summary>Acta y tareas de una reunión</summary>
+    <div class="prompt">Te paso la transcripción de una reunión. Extrae: decisiones tomadas, tareas (quién, qué, cuándo) en una tabla y temas que quedaron abiertos. No añadas nada que no se haya dicho.<button class="copy">Copiar</button></div>
+  </details>
+  <details>
+    <summary>Mejorar tu propio prompt</summary>
+    <div class="prompt">Quiero conseguir [objetivo]. Antes de responder, hazme las preguntas que necesites para hacerlo bien. Después, escribe el prompt ideal para este encargo.<button class="copy">Copiar</button></div>
+  </details>
+</section>
+
+<section id="reglas">
+  <h2>Reglas de uso</h2>
+  <p class="lead">Seis reglas para usar la IA en el trabajo sin meterte en líos.</p>
+  <div class="rules">
+    <div class="rule"><span class="no">✕</span><div><b>No subas datos confidenciales</b>Datos personales, de clientes o contratos, solo en herramientas aprobadas por tu empresa.</div></div>
+    <div class="rule"><span class="ok">✓</span><div><b>Verifica siempre</b>Cifras, fechas, citas y referencias. La IA predice lo plausible, no lo verdadero.</div></div>
+    <div class="rule"><span class="ok">✓</span><div><b>Dale los datos</b>Mejor adjuntar el documento que pedirle que «recuerde».</div></div>
+    <div class="rule"><span class="ok">✓</span><div><b>Itera</b>La primera respuesta es un borrador. Pide cambios concretos.</div></div>
+    <div class="rule"><span class="no">✕</span><div><b>No delegues la decisión</b>La IA propone; la responsabilidad es tuya.</div></div>
+    <div class="rule"><span class="ok">✓</span><div><b>Sé transparente</b>Si un trabajo o documento lo ha hecho la IA en buena parte, dilo.</div></div>
+  </div>
+</section>
+
+<section id="herramientas" class="tools">
+  <h2>Herramientas</h2>
+  <p class="lead">Una selección para empezar. Casi todas tienen versión gratuita con límites; las condiciones cambian a menudo.</p>
+
+  <h3>Asistentes generales</h3>
+  <div class="grid g3">
+    <a class="tool" href="https://chatgpt.com" target="_blank" rel="noopener"><b>ChatGPT</b><span class="pill">OpenAI</span><small>El más conocido. Permite crear GPTs personalizados.</small></a>
+    <a class="tool" href="https://claude.ai" target="_blank" rel="noopener"><b>Claude</b><span class="pill">Anthropic</span><small>Muy bueno redactando y analizando documentos. Permite crear Proyectos.</small></a>
+    <a class="tool" href="https://gemini.google.com" target="_blank" rel="noopener"><b>Gemini</b><span class="pill">Google</span><small>Integrado con Gmail, Drive y Docs. Permite crear Gems.</small></a>
+    <a class="tool" href="https://copilot.microsoft.com" target="_blank" rel="noopener"><b>Copilot</b><span class="pill">Microsoft</span><small>Integrado en Word, Excel, Outlook y Teams en la versión de empresa.</small></a>
+    <a class="tool" href="https://www.perplexity.ai" target="_blank" rel="noopener"><b>Perplexity</b><small>Buscador con IA que cita sus fuentes.</small></a>
+  </div>
+
+  <h3>Estudiar y trabajar con documentos</h3>
+  <div class="grid g3">
+    <a class="tool" href="https://notebooklm.google.com" target="_blank" rel="noopener"><b>NotebookLM</b><span class="pill">Google</span><small>Sube tus documentos y pregúntales. Genera resúmenes en audio tipo podcast y mapas mentales.</small></a>
+    <a class="tool" href="https://www.napkin.ai" target="_blank" rel="noopener"><b>Napkin</b><small>Convierte un texto en diagramas y esquemas visuales.</small></a>
+  </div>
+
+  <h3>Presentaciones, vídeo y voz</h3>
+  <div class="grid g3">
+    <a class="tool" href="https://gamma.app" target="_blank" rel="noopener"><b>Gamma</b><small>Presentaciones y documentos visuales a partir de un texto o un esquema.</small></a>
+    <a class="tool" href="https://www.heygen.com" target="_blank" rel="noopener"><b>HeyGen</b><small>Vídeos con avatar y traducción de vídeos manteniendo tu voz.</small></a>
+    <a class="tool" href="https://elevenlabs.io" target="_blank" rel="noopener"><b>ElevenLabs</b><small>Voces sintéticas realistas y doblaje.</small></a>
+    <a class="tool" href="https://suno.com" target="_blank" rel="noopener"><b>Suno</b><small>Genera canciones a partir de una descripción.</small></a>
+  </div>
+
+  <h3>Agentes y programación sin ser programador</h3>
+  <div class="grid g3">
+    <a class="tool" href="https://claude.com/product/claude-code" target="_blank" rel="noopener"><b>Claude Code</b><span class="pill">Anthropic</span><small>Agente que trabaja con ficheros, bases de datos y código desde tu ordenador.</small></a>
+    <a class="tool" href="https://antigravity.google" target="_blank" rel="noopener"><b>Antigravity</b><span class="pill">Google</span><small>Entorno de desarrollo con agentes que construyen y prueban aplicaciones.</small></a>
+    <a class="tool" href="https://cursor.com" target="_blank" rel="noopener"><b>Cursor</b><small>Editor de código con IA integrada.</small></a>
+    <a class="tool" href="https://lovable.dev" target="_blank" rel="noopener"><b>Lovable</b><small>Crea aplicaciones web describiéndolas en lenguaje natural.</small></a>
+  </div>
+
+  <h3>IA en tu propio ordenador</h3>
+  <div class="grid g3">
+    <a class="tool" href="https://lmstudio.ai" target="_blank" rel="noopener"><b>LM Studio</b><small>Descarga y usa modelos abiertos sin conexión a internet.</small></a>
+    <a class="tool" href="https://ollama.com" target="_blank" rel="noopener"><b>Ollama</b><small>Ejecuta modelos abiertos (Llama, Mistral, Qwen…) en local.</small></a>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">Material docente · Máster en Dirección de Operaciones · Los datos del ejercicio son ficticios.</div>
+</footer>
+
+<script>
+document.querySelectorAll('.copy').forEach(function(b){
+  b.addEventListener('click',function(){
+    var t=b.parentElement.cloneNode(true); t.querySelector('.copy').remove();
+    var text=t.textContent.trim();
+    var done=function(){b.textContent='Copiado';setTimeout(function(){b.textContent='Copiar'},1500)};
+    if(navigator.clipboard){navigator.clipboard.writeText(text).then(done,done)}else{done()}
+  });
+});
+</script>
+</body>
+</html>
